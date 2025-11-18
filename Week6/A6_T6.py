@@ -1,23 +1,35 @@
 LOWER_ALPHABETS = "abcdefghijklmnopqrstuvwxyz"
 UPPER_ALPHABETS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+
+def shiftCharacter(char, alphabet):
+    if char in alphabet:
+        index = alphabet.index(char)
+        return alphabet[(index + 13) % 26]
+    return char
+
+
 def rot13(text):
     result = ""
     for char in text:
         if char in LOWER_ALPHABETS:
-            index = LOWER_ALPHABETS.index(char)
-            result += LOWER_ALPHABETS[(index + 13) % 26]
+            result += shiftCharacter(char, LOWER_ALPHABETS)
         elif char in UPPER_ALPHABETS:
-            index = UPPER_ALPHABETS.index(char)
-            result += UPPER_ALPHABETS[(index + 13) % 26]
+            result += shiftCharacter(char, UPPER_ALPHABETS)
         else:
             result += char
     return result
 
+
+def writeFile(filename, content):
+    with open(filename, "w", encoding="UTF-8") as f:
+        f.write(content)
+
+
 def main():
     print("Program starting.\n")
     print("Collecting plain text rows for ciphering.")
-    
+
     lines = []
     while True:
         row = input("Insert row(empty stops): ")
@@ -37,13 +49,13 @@ def main():
         print("File name not defined.")
         print("Aborting save operation.")
     else:
-        f = open(filename, "w")
-        for line in ciphered:
-            f.write(line + "\n")
-        f.close()
+        # Muodosta yksi merkkijono, koska writeFile odottaa stringiä
+        content = "\n".join(ciphered) + "\n"
+        writeFile(filename, content)
         print("Ciphered text saved!")
 
     print("Program ending.")
+
 
 if __name__ == "__main__":
     main()
