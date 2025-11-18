@@ -1,5 +1,6 @@
 SEPARATOR = ";"
 
+
 def readValues(filename):
     values = ""
     f = open(filename, "r")
@@ -7,14 +8,14 @@ def readValues(filename):
     f.close()
 
     for i in range(len(lines)):
-        number = lines[i].strip()
+        number = lines[i].strip()  # Poistaa rivinvaihdon
         values += number
         if i < len(lines) - 1:
             values += SEPARATOR
     return values
 
 
-def analyseNumbers(values):
+def analyseValues(values):
     numbers = [int(x) for x in values.split(SEPARATOR)]
 
     count = len(numbers)
@@ -22,16 +23,16 @@ def analyseNumbers(values):
     greatest = max(numbers)
     average = total / count
 
-    results = f"{count}{SEPARATOR}{total}{SEPARATOR}{greatest}{SEPARATOR}{average:.2f}"
-    return results
+    header = "Count;Sum;Greatest;Average"
+    data = f"{count}{SEPARATOR}{total}{SEPARATOR}{greatest}{SEPARATOR}{average:.2f}"
+    return f"{header}\n{data}\n"
 
 
 def displayReport(filename, results):
     print("#### Number analysis - START ####")
     print(f'File "{filename}" results:')
-    print("Count;Sum;Greatest;Average")
     print(results)
-    print("\n#### Number analysis - END ####")
+    print("#### Number analysis - END ####")
 
 
 def main():
@@ -39,7 +40,7 @@ def main():
     filename = input("Insert filename: ")
 
     values = readValues(filename)
-    results = analyseNumbers(values)
+    results = analyseValues(values)
     displayReport(filename, results)
 
     print("Program ending.")

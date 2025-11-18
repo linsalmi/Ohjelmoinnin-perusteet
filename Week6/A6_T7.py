@@ -1,4 +1,4 @@
-# Luovutin tämän suhteen.
+# Luovutin tämän suhteen. Laitoin tuohon jotain printtejä mitä kuvittelisin tarvittavan, mutta kokonaisuutena liian hankala ratkaista.
 
 locations = {
     0: "home",
