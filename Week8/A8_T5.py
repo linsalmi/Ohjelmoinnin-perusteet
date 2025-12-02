@@ -1,100 +1,101 @@
+
 import hashlib
-from template import askChoice
 
 CREDENTIALS_FILE = "credentials.txt"
+DELIMITER = ";"
 
-MAIN_MENU_OPTIONS = [
-    "1 - Login",
-    "2 - Register",
-    "0 - Exit"
-]
-
-USER_MENU_OPTIONS = [
-    "1 - View profile",
-    "2 - Change password",
-    "0 - Logout"
-]
 
 def hash_password(password: str) -> str:
-    return hashlib.md5(password.encode("utf-8")).hexdigest()
+    return hashlib.md5(password.encode()).hexdigest()
 
-def load_credentials() -> list[list[str]]:
-    credentials = []
+
+def register(PUsername: str, PPassword: str) -> None:
     try:
-        with open(CREDENTIALS_FILE, "r", encoding="utf-8") as file:
-            for line in file:
-                line = line.strip()
-                if line:
-                    parts = line.split(";")
-                    if len(parts) == 3:
-                        credentials.append(parts)
+        with open(CREDENTIALS_FILE, "r") as file:
+            lines = file.readlines()
     except FileNotFoundError:
-        pass
-    return credentials
+        lines = []
 
-def save_credentials(credentials: list[list[str]]) -> None:
-    with open(CREDENTIALS_FILE, "w", encoding="utf-8") as file:
-        for cred in credentials:
-            file.write(";".join(cred) + "\n")
+    user_id = len(lines)
+    hashed = hash_password(PPassword)
+    with open(CREDENTIALS_FILE, "a") as file:
+        file.write(f"{user_id}{DELIMITER}{PUsername}{DELIMITER}{hashed}\n")
 
-def register_user():
-    credentials = load_credentials()
-    username = input("Insert username: ").strip()
-    password = input("Insert password: ").strip()
-    hashed = hash_password(password)
-    user_id = str(len([c for c in credentials if c[1] != "admin"]))
-    credentials.append([user_id, username, hashed])
-    save_credentials(credentials)
-    print("User registration completed!\n")
 
-def login_user():
-    credentials = load_credentials()
-    username = input("Insert username: ").strip()
-    password = input("Insert password: ").strip()
-    hashed = hash_password(password)
+def login(PUsername: str, PPassword: str) -> bool:
+    hashed = hash_password(PPassword)
+    try:
+        with open(CREDENTIALS_FILE, "r") as file:
+            for line in file:
+                parts = line.strip().split(DELIMITER)
+                if len(parts) == 3 and parts[1] == PUsername and parts[2] == hashed:
+                    return True
+    except FileNotFoundError:
+        return False
+    return False
 
-    for cred in credentials:
-        if cred[1] == username and cred[2] == hashed:
-            print("Authentication successful!\n") 
-            user_menu(cred)
-            return
 
-    print("Authentication failed!\n")
+def viewProfile(PUsername: str) -> list[str]:
+    try:
+        with open(CREDENTIALS_FILE, "r") as file:
+            for line in file:
+                parts = line.strip().split(DELIMITER)
+                if len(parts) == 3 and parts[1] == PUsername:
+                    return [parts[0], parts[1]]
+    except FileNotFoundError:
+        return []
+    return []
 
-def user_menu(user_cred: list[str]):
-    while True:
-        print("User menu:")
-        for option in USER_MENU_OPTIONS: 
-            print(option)
-        choice = askChoice([0, 1, 2])
 
-        if choice == 0:
-            print("Logging out...\n")
-            return
-        elif choice == 1:
-            print(f"Profile ID {user_cred[0]} - {user_cred[1]}\n")
-        elif choice == 2:
-            print("Change password feature not implemented yet.")
+def change_password(PUsername: str, PNewPassword: str) -> None:
+    pass 
 
-def showMenu(options: list[str]):
-    print("Options:")
-    for option in options:
-        print(option)
 
-def main():
+def main() -> None:
     print("Program starting.")
     while True:
-        showMenu(MAIN_MENU_OPTIONS)
-        choice = askChoice([0, 1, 2])
+        print("Options:")
+        print("1 - Login")
+        print("2 - Register")
+        print("0 - Exit")
+        choice = input("Your choice: ").strip()
 
-        if choice == 0:
+        if choice == "1":
+            username = input("Insert username: ").strip()
+            password = input("Insert password: ").strip()
+            if login(username, password):
+                print("Authentication successful!")
+                while True:
+                    print("User menu:")
+                    print("1 - View profile")
+                    print("2 - Change password")
+                    print("0 - Logout")
+                    sub_choice = input("Your choice: ").strip()
+                    if sub_choice == "1":
+                        profile = viewProfile(username)
+                        if profile:
+                            print(f"Profile ID {profile[0]} - {profile[1]}")
+                    elif sub_choice == "0":
+                        print("Logging out...")
+                        break
+                    else:
+                        print("Invalid choice.")
+            else:
+                print("Authentication failed!")
+
+        elif choice == "2":
+            username = input("Insert username: ").strip()
+            password = input("Insert password: ").strip()
+            register(username, password)
+            print("User registration completed!")
+
+        elif choice == "0":
             print("Exiting program.")
             break
-        elif choice == 1:
-            login_user()
-        elif choice == 2:
-            register_user()
-    print("\nProgram ending.")
+        else:
+            print("Invalid choice.")
+    print("Program ending.")
+
 
 if __name__ == "__main__":
     main()
