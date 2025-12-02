@@ -42,7 +42,6 @@ def register_user():
     username = input("Insert username: ").strip()
     password = input("Insert password: ").strip()
     hashed = hash_password(password)
-    # ID alkaa 0 ensimmäisestä rekisteröidystä (admin voi olla 0)
     user_id = str(len([c for c in credentials if c[1] != "admin"]))
     credentials.append([user_id, username, hashed])
     save_credentials(credentials)
